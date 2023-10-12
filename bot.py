@@ -1,3 +1,4 @@
+# Importing modules
 from telebot import TeleBot, types
 from config import *
 from time import sleep
@@ -5,11 +6,13 @@ from time import sleep
 bot = TeleBot(api_token)
 
 
+# Function for getting reply keyboard
 def get_reply_keyboard(keyboard_buttons: list,
                        one_time: bool = False,
                        menu_keyboard: bool = False) -> types.ReplyKeyboardMarkup:
     keyboard = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=one_time)
 
+    # Internal function. If keyboard needs for menu
     def get_menu_keyboard() -> None:
         for i in range(len(keyboard_buttons)):
             if i == 1:
@@ -29,6 +32,7 @@ def get_reply_keyboard(keyboard_buttons: list,
     return keyboard
 
 
+# Function for getting inline keyboard
 def get_inline_keyboard() -> types.InlineKeyboardMarkup:
     keyboard = types.InlineKeyboardMarkup()
     for i, novel in enumerate(novels):
@@ -36,6 +40,7 @@ def get_inline_keyboard() -> types.InlineKeyboardMarkup:
     return keyboard
 
 
+# Function for getting inline keyboard to every novel
 def get_inline_keyboard_for_novel(novel: str) -> types.InlineKeyboardMarkup:
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(types.InlineKeyboardButton(text='Описание', callback_data=f'about {novels.index(novel)}'),
@@ -44,6 +49,7 @@ def get_inline_keyboard_for_novel(novel: str) -> types.InlineKeyboardMarkup:
     return keyboard
 
 
+# Function for getting username
 def get_user(message) -> str:
     user = message.from_user.first_name
     if message.from_user.last_name is not None:
@@ -51,6 +57,7 @@ def get_user(message) -> str:
     return user
 
 
+# Bot commands
 @bot.message_handler(commands=['start'])
 def start(message):
     user = get_user(message)
@@ -95,6 +102,7 @@ def information(message):
     bot.send_message(message.chat.id, text=info, reply_markup=keyboard)
 
 
+# Processing messages in chat
 @bot.message_handler(content_types=['text'])
 def check_message(message):
     if message.text == 'Завершить работу \U0001F4A4':
@@ -142,6 +150,7 @@ def check_message(message):
                                           'Или жми на кнопку Меню \U0001F92F', reply_markup=keyboard)
 
 
+# Processing events in group chat
 @bot.message_handler(content_types=['new_chat_members'])
 def hello_member(message):
     user = get_user(message)
@@ -150,8 +159,10 @@ def hello_member(message):
     bot.send_message(message.chat.id, text=f'Приветствую, {user}!{hello}')
 
 
+# Processing callbacks by inline keyboard buttons
 @bot.callback_query_handler(func=lambda call: True)
 def process_callback(call):
+    # Internal function for processing callbacks
     def check_callback() -> None:
         for i, element in enumerate(novels_callback_id):
             if call.data == element:
@@ -168,7 +179,7 @@ def process_callback(call):
         for i, element in enumerate(characters_callback_id):
             if call.data == element:
                 if 'characters' in element:
-                    # Delete if when all files with characters be in folder
+                    # Delete "if" when all files with characters be in folder
                     if i > 0:
                         bot.send_chat_action(call.message.chat.id, 'typing')
                         sleep(2)
@@ -182,7 +193,7 @@ def process_callback(call):
                         sleep(2)
                         bot.send_document(call.message.chat.id, document=file)
         for i, element in enumerate(about_callback_id):
-            # Delete if when description will be in folder about
+            # Delete "if" when description will be in folder about
             if call.data == element:
                 if not(i >= 0):
                     file = open(f'data/about/{novels[i]} о романе.docx', 'rb')
