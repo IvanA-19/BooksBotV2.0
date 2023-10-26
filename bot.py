@@ -129,7 +129,7 @@ def check_message(message):
         keyboard = get_reply_keyboard(keyboard_buttons=['Меню'], one_time=True)
         bot.send_chat_action(message.chat.id, 'typing')
         sleep(2)
-        bot.send_message(message.chat.id, f'Приветсвую, {user}!\nДля открытия меню жми кнопку',
+        bot.send_message(message.chat.id, f'Приветствую, {user}!\nДля открытия меню жми кнопку',
                          reply_markup=keyboard)
     elif message.text == 'Контакты \U0001F4D3':
         keyboard = get_reply_keyboard(keyboard_buttons=['Меню'], one_time=True)
@@ -146,7 +146,7 @@ def check_message(message):
         bot.send_chat_action(message.chat.id, 'typing')
         sleep(2)
         bot.send_message(message.chat.id, 'Прости, я не понимаю \U0001F97A\n'
-                                          'Исполбзуй /help для просмотра списка команд \U0001F9D0\n'
+                                          'Используй /help для просмотра списка команд \U0001F9D0\n'
                                           'Или жми на кнопку Меню \U0001F92F', reply_markup=keyboard)
 
 
@@ -188,7 +188,7 @@ def process_callback(call):
                         file = open(f'data/characters/{novels[i]} персонажи.docx', 'rb')
                         bot.send_chat_action(call.message.chat.id, 'typing')
                         sleep(2)
-                        bot.send_message(call.message.chat.id, 'Все песонажи в файле\U0001F60F')
+                        bot.send_message(call.message.chat.id, 'Все персонажи в файле\U0001F60F')
                         bot.send_chat_action(call.message.chat.id, 'upload_document')
                         sleep(2)
                         bot.send_document(call.message.chat.id, document=file)
