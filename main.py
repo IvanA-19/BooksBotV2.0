@@ -1,6 +1,5 @@
 # Importing modules
 from bot import bot
-from background import keep_alive
 
 
 # Main function
@@ -10,5 +9,4 @@ def main():
 
 # Dot of entry
 if __name__ == '__main__':
-    keep_alive()
     main()
