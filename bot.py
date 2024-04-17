@@ -38,11 +38,23 @@ def get_reply_keyboard(keyboard_buttons: list,
     return keyboard
 
 
-# Function for getting inline keyboard
-def get_inline_keyboard() -> types.InlineKeyboardMarkup:
+# Function for getting primary inline keyboard
+def get_primary_inline_keyboard() -> types.InlineKeyboardMarkup:
     keyboard = types.InlineKeyboardMarkup()
-    for i, novel in enumerate(novels):
-        keyboard.add(types.InlineKeyboardButton(text=novel, callback_data=novels_callback_id[i]))
+    keyboard.add(types.InlineKeyboardButton(text='Романы о семье Алехиных', callback_data='Семья Алехиных'))
+    keyboard.add(types.InlineKeyboardButton(text='Трилогия романов о демонах', callback_data='История темного мастера'))
+    keyboard.add(types.InlineKeyboardButton(text='Наше счастливое вчера', callback_data='Наше счастливое вчера'))
+    keyboard.add(types.InlineKeyboardButton(text='Фантастика', callback_data='Фантастика'))
+
+    return keyboard
+
+
+# Function for getting secondary inline keyboard
+def get_secondary_inline_keyboard(buttons: list, callbacks: list) -> types.InlineKeyboardMarkup:
+    keyboard = types.InlineKeyboardMarkup()
+    for button, callback in zip(buttons, callbacks):
+        keyboard.add(types.InlineKeyboardButton(text=button, callback_data=callback))
+
     return keyboard
 
 
@@ -119,7 +131,7 @@ def check_message(message):
         bot.send_message(message.chat.id, 'Выберите, что вы хотите сделать\U0001F607', reply_markup=keyboard)
 
     elif message.text == 'Выбрать произведение \U0001F4DA':
-        keyboard = get_inline_keyboard()
+        keyboard = get_primary_inline_keyboard()
         send_chat_action(message, 'typing', 2)
         bot.send_message(message.chat.id, 'Какое произведение вас интересует?', reply_markup=keyboard)
 
@@ -159,7 +171,16 @@ def process_callback(call):
     # Internal function for processing callbacks
     def check_callback() -> None:
         for i, element in enumerate(novels_callback_id):
-            if call.data == element:
+            # Delete when novel will be finished and added in folder
+            if element == '5':
+                send_chat_action(call.message, 'typing', 2)
+                bot.send_message(call.message.chat.id, 'К сожалению, в данный '
+                                                       'момент третий роман - \"История '
+                                                       'темного феникса\", находится в стадии написания, '
+                                                       'но могу уверить'
+                                                       'вас, дорогой читатель, что автор вскоре опубликует '
+                                                       'его\U0001F60A')
+            elif call.data == element:
                 file = open(f'data/novels/{novels[i]}.docx', 'rb')
                 keyboard = get_inline_keyboard_for_novel(novels[i])
                 send_chat_action(call.message, 'typing', 2)
@@ -202,7 +223,7 @@ def process_callback(call):
                     bot.send_message(call.message.chat.id,
                                      'В файле ниже вы можете ознакомиться '
                                      'с дополнительным контентом по произведению! \U0001F60C')
-                    send_chat_action(call.message, 'upload_document',3)
+                    send_chat_action(call.message, 'upload_document', 3)
                     bot.send_document(call.message.chat.id, document=file)
                 else:
                     send_chat_action(call.message, 'typing', 2)
@@ -214,5 +235,36 @@ def process_callback(call):
             send_chat_action(call.message, 'typing', 2)
             bot.send_message(call.message.chat.id, 'Выберите, что вы хотите сделать\U0001F607',
                              reply_markup=keyboard)
+
+        # Processing callbacks from primary keyboard
+        if call.data.lower() == 'семья алехиных':
+            bot.delete_message(call.message.chat.id, call.message.id)
+            send_chat_action(call.message, 'typing')
+            bot.send_message(call.message.chat.id, 'Представляю вашему вниманию романы о семье Алехиных\U0001F525',
+                             reply_markup=get_secondary_inline_keyboard(novels[1:3], novels_callback_id[1:3]))
+        elif call.data.lower() == 'история темного мастера':
+            bot.delete_message(call.message.chat.id, call.message.id)
+            send_chat_action(call.message, 'typing')
+            bot.send_message(call.message.chat.id, 'Представляю вашему вниманию трилогию романов об истории темного '
+                                                   'матера\U0001F929 \n\nК сожалению, в данный '
+                                                   'момент третий роман - \"История '
+                                                   'темного феникса\", находится в стадии написания, но могу уверить '
+                                                   'вас, дорогой читатель, что автор вскоре опубликует его\U0001F60A',
+                             reply_markup=get_secondary_inline_keyboard(novels[3:6], novels_callback_id[3:6]))
+        elif call.data.lower() == 'наше счастливое вчера':
+            bot.delete_message(call.message.chat.id, call.message.id)
+            send_chat_action(call.message, 'typing')
+            bot.send_message(call.message.chat.id, 'Представляю вашему вниманию увлекательные детективные '
+                                                   'романы с завораживающим сюжетом\U0001F631'
+                                                   ' \n\nК сожалению, в данный момент вторая часть романа'
+                                                   ' находится в стадии написания, но могу уверить '
+                                                   'вас, дорогой читатель, что автор вскоре опубликует его\U0001F60A',
+                             reply_markup=get_secondary_inline_keyboard([novels[0]], [novels_callback_id[0]]))
+        elif call.data.lower() == 'фантастика':
+            bot.delete_message(call.message.chat.id, call.message.id)
+            send_chat_action(call.message, 'typing')
+            bot.send_message(call.message.chat.id,
+                             'Представляю вашему вниманию произведения жанра фантастика\U0001F9D0',
+                             reply_markup=get_secondary_inline_keyboard([novels[5]], [novels_callback_id[5]]))
 
     check_callback()
