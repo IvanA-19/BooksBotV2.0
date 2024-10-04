@@ -172,15 +172,15 @@ def process_callback(call):
     def check_callback() -> None:
         for i, element in enumerate(novels_callback_id):
             # Delete when novel will be finished and added in folder
-            if element == '5':
+            if i == 5:
                 send_chat_action(call.message, 'typing', 2)
                 bot.send_message(call.message.chat.id, 'К сожалению, в данный '
                                                        'момент третий роман - \"История '
                                                        'темного феникса\", находится в стадии написания, '
-                                                       'но могу уверить'
+                                                       'но могу уверить '
                                                        'вас, дорогой читатель, что автор вскоре опубликует '
                                                        'его\U0001F60A')
-            elif call.data == element:
+            if call.data == element and i != 5:
                 file = open(f'data/novels/{novels[i]}.docx', 'rb')
                 keyboard = get_inline_keyboard_for_novel(novels[i])
                 send_chat_action(call.message, 'typing', 2)
@@ -189,6 +189,7 @@ def process_callback(call):
                 bot.send_message(call.message.chat.id, 'Приятного прочтения\U0001F60A')
                 send_chat_action(call.message, 'upload_document', 3)
                 bot.send_document(call.message.chat.id, document=file, reply_markup=keyboard)
+
 
         for i, element in enumerate(characters_callback_id):
             if call.data == element:
@@ -246,10 +247,7 @@ def process_callback(call):
             bot.delete_message(call.message.chat.id, call.message.id)
             send_chat_action(call.message, 'typing')
             bot.send_message(call.message.chat.id, 'Представляю вашему вниманию трилогию романов об истории темного '
-                                                   'матера\U0001F929 \n\nК сожалению, в данный '
-                                                   'момент третий роман - \"История '
-                                                   'темного феникса\", находится в стадии написания, но могу уверить '
-                                                   'вас, дорогой читатель, что автор вскоре опубликует его\U0001F60A',
+                                                   'матера\U0001F929 \n\n',
                              reply_markup=get_secondary_inline_keyboard(novels[3:6], novels_callback_id[3:6]))
         elif call.data.lower() == 'наше счастливое вчера':
             bot.delete_message(call.message.chat.id, call.message.id)
