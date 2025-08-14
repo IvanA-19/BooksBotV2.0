@@ -264,6 +264,6 @@ def process_callback(call):
             send_chat_action(call.message, 'typing')
             bot.send_message(call.message.chat.id,
                              'Представляю вашему вниманию произведения жанра фантастика\U0001F9D0',
-                             reply_markup=get_secondary_inline_keyboard([novels[5]], [novels_callback_id[5]]))
+                             reply_markup=get_secondary_inline_keyboard([novels[6]], [novels_callback_id[6]]))
 
     check_callback()
