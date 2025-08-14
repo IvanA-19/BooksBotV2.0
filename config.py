@@ -3,7 +3,7 @@ import json
 
 
 # Getting data from JSON
-data = json.load(open('config.json'))
+data = json.load(open('config.json', 'r', encoding="utf-8"))
 
 # Variables for bot
 api_token = data['api_token']
@@ -19,6 +19,5 @@ novels_callback_id = [str(i) for i in range(len(novels))]
 about_callback_id = [f'about {str(i)}' for i in range(len(novels_callback_id))]
 characters_callback_id = [f'characters {str(i)}' for i in range(len(novels_callback_id))]
 more_callback_id = [f'more {str(i)}' for i in range(len(novels_callback_id))]
-
 
 

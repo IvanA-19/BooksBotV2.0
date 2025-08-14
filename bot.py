@@ -62,7 +62,7 @@ def get_secondary_inline_keyboard(buttons: list, callbacks: list) -> types.Inlin
 def get_inline_keyboard_for_novel(novel: str) -> types.InlineKeyboardMarkup:
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(types.InlineKeyboardButton(text='Дополнительно', callback_data=f'more {novels.index(novel)}'))
-    keyboard.add(types.InlineKeyboardButton(text='Описание', callback_data=f'about {novels.index(novel)}'),
+    keyboard.add(types.InlineKeyboardButton(text='О книге', callback_data=f'about {novels.index(novel)}'),
                  types.InlineKeyboardButton(text='Персонажи', callback_data=f'characters {novels.index(novel)}'))
     keyboard.add(types.InlineKeyboardButton(text='Меню', callback_data='menu'))
     return keyboard
@@ -171,17 +171,8 @@ def process_callback(call):
     # Internal function for processing callbacks
     def check_callback() -> None:
         for i, element in enumerate(novels_callback_id):
-            # Delete when novel will be finished and added in folder
-            if i == 5:
-                send_chat_action(call.message, 'typing', 2)
-                bot.send_message(call.message.chat.id, 'К сожалению, в данный '
-                                                       'момент третий роман - \"История '
-                                                       'темного феникса\", находится в стадии написания, '
-                                                       'но могу уверить '
-                                                       'вас, дорогой читатель, что автор вскоре опубликует '
-                                                       'его\U0001F60A')
-            if call.data == element and i != 5:
-                file = open(f'data/novels/{novels[i]}.docx', 'rb')
+            if call.data == element:
+                file = open(f'data/novels/{novels[i]}.pdf', 'rb')
                 keyboard = get_inline_keyboard_for_novel(novels[i])
                 send_chat_action(call.message, 'typing', 2)
                 bot.edit_message_text('Уже отправляю \U0001F60C', call.message.chat.id, call.message.id)
@@ -190,32 +181,39 @@ def process_callback(call):
                 send_chat_action(call.message, 'upload_document', 3)
                 bot.send_document(call.message.chat.id, document=file, reply_markup=keyboard)
 
-
         for i, element in enumerate(characters_callback_id):
             if call.data == element:
                 if 'characters' in element:
                     # Delete "if" when all files with characters be in folder
                     if i > 0:
+                        bot.delete_message(call.message.chat.id, call.message.id)
+                        keyboard = get_reply_keyboard(keyboard_buttons=['Меню'], one_time=True, menu_keyboard=True)
                         send_chat_action(call.message, 'typing', 2)
-                        bot.send_message(call.message.chat.id, 'В разработке... \U0001F616')
+                        bot.send_message(call.message.chat.id, 'В разработке... \U0001F616',
+                                         reply_markup=keyboard)
                     else:
                         file = open(f'data/characters/{novels[i]} персонажи.docx', 'rb')
                         send_chat_action(call.message, 'typing', 2)
                         bot.send_message(call.message.chat.id, 'Все персонажи в файле\U0001F60F')
                         send_chat_action(call.message, 'upload_document', 3)
                         bot.send_document(call.message.chat.id, document=file)
+
         for i, element in enumerate(about_callback_id):
             # Delete "if" when description will be in folder about
             if call.data == element:
                 if not (i >= 0):
-                    file = open(f'data/about/{novels[i]} о романе.docx', 'rb')
+                    file = open(f'data/about/{novels[i]} о книге.pdf', 'rb')
                     send_chat_action(call.message, 'typing', 2)
-                    bot.send_message(call.message.chat.id, 'Описание романа в файле\U0001F60C')
+                    bot.send_message(call.message.chat.id, 'Информация о книге в файле\U0001F60C')
                     send_chat_action(call.message, 'upload_document', 3)
                     bot.send_document(call.message.chat.id, document=file)
                 else:
+                    bot.delete_message(call.message.chat.id, call.message.id)
+                    keyboard = get_reply_keyboard(keyboard_buttons=['Меню'], one_time=True, menu_keyboard=True)
                     send_chat_action(call.message, 'typing', 2)
-                    bot.send_message(call.message.chat.id, 'В разработке... \U0001F616')
+                    bot.send_message(call.message.chat.id, 'В разработке... \U0001F616',
+                                     reply_markup=keyboard)
+
         for i, element in enumerate(more_callback_id):
             if call.data == element:
                 if not (i >= 0):
@@ -227,9 +225,12 @@ def process_callback(call):
                     send_chat_action(call.message, 'upload_document', 3)
                     bot.send_document(call.message.chat.id, document=file)
                 else:
+                    bot.delete_message(call.message.chat.id, call.message.id)
+                    keyboard = get_reply_keyboard(keyboard_buttons=['Меню'], one_time=True, menu_keyboard=True)
                     send_chat_action(call.message, 'typing', 2)
                     bot.send_message(call.message.chat.id, 'Мне очень жаль, но данный '
-                                                           'раздел пока недоступен \U0001F616')
+                                                           'раздел пока недоступен \U0001F616',
+                                     reply_markup=keyboard)
 
         if call.data == 'menu':
             keyboard = get_reply_keyboard(keyboard_buttons=main_menu_buttons, menu_keyboard=True, one_time=True)
